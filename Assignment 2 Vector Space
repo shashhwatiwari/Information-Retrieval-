@@ -78,3 +78,38 @@ def rank_documents(query_weights, index, doc_lengths):
         key=lambda x: (-x[1], x[0])
     )
     return [doc_id for doc_id, score in ranked_docs]
+
+# Test the implementation with sample documents and queries.
+from google.colab import drive
+drive.mount('/content/drive')
+
+corpus_path = "/content/drive/MyDrive/Corpus"  # update the path to your Corpus directory
+documents = []
+
+# iterate over all files in the directory
+for filename in os.listdir(corpus_path):
+    file_path = os.path.join(corpus_path, filename)
+    if os.path.isfile(file_path):
+        with open(file_path, "r", encoding="utf8") as f:
+            content = f.read()
+            documents.append(content)
+
+
+
+index, doc_lengths = parse_documents(documents)
+print(len(doc_lengths))
+idf = compute_idf(index, len(documents))
+query = "Developing your Zomato business account and profile is a great way to boost your restaurant’s online reputation"
+
+query_weights = compute_query_weights(query, idf)
+ranked_docs = rank_documents(query_weights, index, doc_lengths)
+
+print("Documents ranked by relevance for query '{}':".format(query))
+ranked_docs_with_scores = []
+for doc_id in ranked_docs:
+    score = doc_lengths[doc_id]
+    file_name = os.listdir(corpus_path)[doc_id]
+    ranked_docs_with_scores.append((file_name, score))
+#ranked_docs_with_scores = reversed(ranked_docs_with_scores)
+for file_name, score in ranked_docs_with_scores:
+    print("File Name: {}, Score: {:.4f}".format(file_name, score))
