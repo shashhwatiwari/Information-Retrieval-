@@ -23,3 +23,17 @@ def parse_documents(documents):
         doc_lengths[i] = sum([weight ** 2 for weight in doc_weights.values()])
     
     return index, doc_lengths
+    
+def compute_idf(index, num_documents):
+    idf = {}
+    for term in index:
+        idf[term] = math.log10(num_documents / len(index[term]))
+    return idf
+
+def compute_query_weights(query, idf):
+    query_weights = {}
+    terms = query.lower().split()
+    for term in terms:
+        if term not in query_weights:
+            query_weights[term] = 0
+        query_weights[term] += 1
